@@ -27,6 +27,7 @@ import (
 	"syscall"
 
 	"flag"
+
 	"github.com/GoogleCloudPlatform/stet/client"
 	configpb "github.com/GoogleCloudPlatform/stet/proto/config_go_proto"
 	glog "github.com/golang/glog"
@@ -114,6 +115,7 @@ func finalizeOutputFile(outputPath string, outFile *os.File) error {
 type encryptCmd struct {
 	configFile         string
 	blobID             string
+	eventLogFile       string
 	insecureSkipVerify bool
 	quiet              bool
 }
@@ -159,6 +161,7 @@ func (e *encryptCmd) SetFlags(f *flag.FlagSet) {
 	configFilePath := fmt.Sprintf("%s/%s", cfgDir, defaultConfigName)
 	f.StringVar(&e.configFile, "config-file", configFilePath, "Path to a StetConfig YAML file. Optional.")
 	f.StringVar(&e.blobID, "blob-id", "", "The blob ID to assign to the encrypted blob. Optional.")
+	f.StringVar(&e.eventLogFile, "eventlog-file", "/sys/kernel/security/tpm0/binary_bios_measurements", "Path to a TCG event log file. Optional.")
 	f.BoolVar(&e.insecureSkipVerify, "insecure-skip-verify", false, "Disable certificate check for inner TLS session.")
 	f.BoolVar(&e.quiet, "quiet", false, "Suppress logging output.")
 }
@@ -266,6 +269,7 @@ func (e *encryptCmd) Execute(ctx context.Context, f *flag.FlagSet, _ ...any) sub
 type decryptCmd struct {
 	configFile         string
 	blobID             string
+	eventLogFile       string
 	insecureSkipVerify bool
 	quiet              bool
 }
@@ -325,6 +329,7 @@ func (d *decryptCmd) SetFlags(f *flag.FlagSet) {
 	configFilePath := fmt.Sprintf("%s/%s", cfgDir, defaultConfigName)
 	f.StringVar(&d.configFile, "config-file", configFilePath, "Path to a StetConfig YAML file. Optional.")
 	f.StringVar(&d.blobID, "blob-id", "", "The blob ID to validate the decryption against. Optional.")
+	f.StringVar(&d.eventLogFile, "eventlog-file", "/sys/kernel/security/tpm0/binary_bios_measurements", "Path to a TCG event log file. Optional.")
 	f.BoolVar(&d.insecureSkipVerify, "insecure-skip-verify", false, "Disable certificate check for inner TLS session.")
 	f.BoolVar(&d.quiet, "quiet", false, "Suppress logging output.")
 }

@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"syscall"
 
 	"cloud.google.com/go/compute/metadata"
@@ -414,7 +415,11 @@ nonceLoop:
 		return fmt.Errorf("negotiated unknown nonce type: %v", negotiatedNonceType)
 	}
 
-	att, err := ek.Attest(tpmclient.AttestOpts{Nonce: nonce})
+	tcgEventLog, err := os.ReadFile("/run/cc-device-plugin/binary_bios_measurements")
+	if err != nil {
+		return fmt.Errorf("error opening event log file: %v", err)
+	}
+	att, err := ek.Attest(tpmclient.AttestOpts{Nonce: nonce, TCGEventLog: tcgEventLog})
 
 	if err != nil {
 		return fmt.Errorf("error generating attestation: %v", err)
